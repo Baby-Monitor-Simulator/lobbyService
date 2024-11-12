@@ -5,6 +5,7 @@ import com.example.BabyMonitorLobbyService.model.Participant;
 import com.example.BabyMonitorLobbyService.model.events.ParticipantAction;
 import com.example.BabyMonitorLobbyService.service.LobbyService;
 import com.example.BabyMonitorLobbyService.service.RabbitMQSenderService;
+import io.micrometer.common.lang.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,23 +16,21 @@ import java.util.List;
 public class LobbyController {
 
     private final LobbyService lobbyService;
-    private RabbitMQSenderService senderService;
+    private final RabbitMQSenderService senderService;
 
     @Autowired
-    public LobbyController(LobbyService lobbyService, RabbitMQSenderService senderService) {
+    public LobbyController(LobbyService lobbyService, @Nullable RabbitMQSenderService senderService) {
         this.lobbyService = lobbyService;
         this.senderService = senderService;
     }
 
     @PostMapping
     public Lobby createLobby(@RequestParam String name) {
-        System.out.println("yepypepyepeeeppp");
         return lobbyService.createLobby(name);
     }
 
     @PostMapping("/MQ")
     public void mQ(@RequestBody ParticipantAction action) {
-        System.out.println("yepypepyepeeeppp");
         senderService.sendParticipantAction(action);
     }
 
