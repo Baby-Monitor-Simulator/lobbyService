@@ -1,8 +1,6 @@
 package com.example.BabyMonitorLobbyService.controller;
 
 import com.example.BabyMonitorLobbyService.model.ActiveLobby;
-import com.example.BabyMonitorLobbyService.model.Lobby;
-import com.example.BabyMonitorLobbyService.model.Participant;
 import com.example.BabyMonitorLobbyService.model.events.ParticipantAction;
 import com.example.BabyMonitorLobbyService.service.LobbyService;
 import com.example.BabyMonitorLobbyService.service.RabbitMQSenderService;
@@ -11,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/lobbies")
@@ -29,8 +25,11 @@ public class LobbyController {
 
     @PostMapping("/NewLobby")
     public ResponseEntity<?> newLobby(@RequestBody ActiveLobby lobbyRequest) {
-
-        ActiveLobby newLobby = new ActiveLobby(lobbyRequest.getId(), lobbyRequest.getOwner(), lobbyRequest.getSimulationid(), lobbyRequest.getActive());
+        System.out.println("id:" + lobbyRequest.getId());
+        System.out.println("owner:"+ lobbyRequest.getOwnerid());
+        System.out.println("simulation:" + lobbyRequest.getSimulationid());
+        System.out.println("activity:" + lobbyRequest.getActive());
+        ActiveLobby newLobby = new ActiveLobby(lobbyRequest.getId(), lobbyRequest.getOwnerid(), lobbyRequest.getSimulationid(), lobbyRequest.getActive());
 
         lobbyService.openLobby(newLobby);
 

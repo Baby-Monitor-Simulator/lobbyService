@@ -1,6 +1,5 @@
 package com.example.BabyMonitorLobbyService.service;
 
-import com.example.BabyMonitorLobbyService.model.Lobby;
 import com.example.BabyMonitorLobbyService.model.ActiveLobby;
 import com.example.BabyMonitorLobbyService.repository.ActiveLobbyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,7 @@ import java.sql.SQLException;
 public class LobbyServiceImpl implements LobbyService {
 
     private final ActiveLobbyRepository repository;
-    private final List<Lobby> lobbies = new ArrayList<>();
+    private final List<ActiveLobby> lobbies = new ArrayList<>();
     private Long nextLobbyId = 1L;
 
     @Autowired

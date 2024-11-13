@@ -3,7 +3,7 @@ package com.example.BabyMonitorLobbyService.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "active_lobbies3")
+@Table(name = "active_lobbies")
 public class ActiveLobby {
 
     @Id
@@ -25,6 +25,11 @@ public class ActiveLobby {
         this.active = _active;  // Lobbies are active by default when created
     }
 
+    public ActiveLobby() {
+
+    }
+
+
     // Getters and Setters
     public int getId() {
         return id;
@@ -34,12 +39,12 @@ public class ActiveLobby {
         this.id = id;
     }
 
-    public int getOwner() {
+    public int getOwnerid() {
         return ownerid;
     }
 
-    public void setOwner(int OwnerId) {
-        this.ownerid = OwnerId;
+    public void setOwnerid(int ownerid) {
+        this.ownerid = ownerid;
     }
 
     public int getSimulationid(){ return simulationid;}
