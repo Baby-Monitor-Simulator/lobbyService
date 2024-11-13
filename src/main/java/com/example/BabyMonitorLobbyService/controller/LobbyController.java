@@ -1,5 +1,6 @@
 package com.example.BabyMonitorLobbyService.controller;
 
+import com.example.BabyMonitorLobbyService.model.ActiveLobby;
 import com.example.BabyMonitorLobbyService.model.Lobby;
 import com.example.BabyMonitorLobbyService.model.Participant;
 import com.example.BabyMonitorLobbyService.model.events.ParticipantAction;
@@ -7,6 +8,8 @@ import com.example.BabyMonitorLobbyService.service.LobbyService;
 import com.example.BabyMonitorLobbyService.service.RabbitMQSenderService;
 import io.micrometer.common.lang.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,10 +27,16 @@ public class LobbyController {
         this.senderService = senderService;
     }
 
-    @PostMapping
-    public Lobby createLobby(@RequestParam String name) {
-        return lobbyService.createLobby(name);
+    @PostMapping("/NewLobby")
+    public ResponseEntity<?> newLobby(@RequestBody ActiveLobby lobbyRequest) {
+
+        ActiveLobby newLobby = new ActiveLobby(lobbyRequest.getId(), lobbyRequest.getOwner(), lobbyRequest.getSimulationid(), lobbyRequest.getActive());
+
+        lobbyService.openLobby(newLobby);
+
+        return new ResponseEntity<>(newLobby, HttpStatusCode.valueOf(200));
     }
+
 
     @PostMapping("/MQ")
     public void mQ(@RequestBody ParticipantAction action) {
@@ -35,22 +44,8 @@ public class LobbyController {
     }
 
     @DeleteMapping("/{id}")
-    public void closeLobby(@PathVariable Long id) {
+    public void closeLobby(@PathVariable int id) {
         lobbyService.closeLobby(id);
     }
 
-    @GetMapping("/{id}")
-    public Lobby getLobby(@PathVariable Long id) {
-        return lobbyService.getLobby(id);
-    }
-
-    @GetMapping
-    public List<Lobby> getAllLobbies() {
-        return lobbyService.getAllLobbies();
-    }
-
-    @PostMapping("/{id}/participants")
-    public Lobby addParticipant(@PathVariable Long id, @RequestBody Participant participant) {
-        return lobbyService.addParticipant(id, participant);
-    }
 }

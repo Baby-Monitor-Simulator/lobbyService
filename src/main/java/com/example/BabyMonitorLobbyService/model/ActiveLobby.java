@@ -2,12 +2,9 @@ package com.example.BabyMonitorLobbyService.model;
 
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
-@Table(name = "active_lobbies2")
-public class Lobby {
+@Table(name = "active_lobbies3")
+public class ActiveLobby {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +18,7 @@ public class Lobby {
     private boolean active;
     //private List<Participant> participants;
 
-    public Lobby(int id, int _ownerid, int _simulationid, boolean _active) {
+    public ActiveLobby(int id, int _ownerid, int _simulationid, boolean _active) {
         this.id = id;
         this.ownerid = _ownerid;
         this.simulationid = _simulationid;
