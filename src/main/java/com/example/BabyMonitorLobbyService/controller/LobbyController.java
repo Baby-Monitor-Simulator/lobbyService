@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/lobbies")
@@ -23,7 +24,9 @@ public class LobbyController {
         this.senderService = senderService;
     }
 
+
     @PostMapping("/NewLobby")
+    @PreAuthorize("hasRole('Instructeur')")
     public ResponseEntity<?> newLobby(@RequestBody ActiveLobby lobbyRequest) {
         System.out.println("id:" + lobbyRequest.getId());
         System.out.println("owner:"+ lobbyRequest.getOwnerid());
