@@ -1,31 +1,40 @@
 package com.example.BabyMonitorLobbyService.model;
 
+import jakarta.persistence.*;
+
+import java.util.UUID;
+
+@Entity
+@Table(name = "participants")
 public class Participant {
-    private Long id;
-    private String name;
+    @Id
+    @Column(name = "userid", nullable = false)
+    private UUID userId;
+    @Column(name = "lobbyid", nullable = false)
+    private Long lobbyId;
 
     public Participant() {}
 
-    public Participant(Long id, String name) {
-        this.id = id;
-        this.name = name;
+    public Participant(UUID userId, Long lobbyId) {
+        this.userId = userId;
+        this.lobbyId = lobbyId;
     }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
+    public UUID getUserId() {
+        return userId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 
-    public String getName() {
-        return name;
+    public Long getLobbyId() {
+        return lobbyId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setLobbyId(Long lobbyId) {
+        this.lobbyId = lobbyId;
     }
 }
 
