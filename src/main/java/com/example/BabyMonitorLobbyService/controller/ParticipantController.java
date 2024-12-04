@@ -2,6 +2,7 @@ package com.example.BabyMonitorLobbyService.controller;
 
 import com.example.BabyMonitorLobbyService.model.Participant;
 import com.example.BabyMonitorLobbyService.model.events.ParticipantAction;
+import com.example.BabyMonitorLobbyService.service.JwtAuthConverter;
 import com.example.BabyMonitorLobbyService.service.ParticipantService;
 import com.example.BabyMonitorLobbyService.service.RabbitMQSenderService;
 import com.example.BabyMonitorLobbyService.service.RsaKeyUtil;
@@ -28,6 +29,9 @@ public class ParticipantController {
     // Load RSA public key from properties file (or you can use a hardcoded key for testing)
     @Value("${jwt.rs256}")
     private String rsaPublicKeyString;
+
+    @Autowired
+    private JwtAuthConverter tokenProvider;
 
     private final ParticipantService participantService;
     private final RabbitMQSenderService senderService;
@@ -76,8 +80,8 @@ public class ParticipantController {
     @GetMapping("/current/{id}")
     public Participant geParticipant(@PathVariable UUID id) { return participantService.getParticipant(id); }
 
-    private boolean isSameUser(Object request, UUID userId) {
-        return request == userId;
+    private boolean isSameUser(UUID subject, UUID userId) {
+        return subject.equals(userId);
     }
 
     private boolean isInLobby(UUID userId) {
