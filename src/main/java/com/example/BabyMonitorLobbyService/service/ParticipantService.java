@@ -1,14 +1,16 @@
 package com.example.BabyMonitorLobbyService.service;
 
 import com.example.BabyMonitorLobbyService.model.Participant;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface ParticipantService {
-    void removeParticipant(UUID id);
-    Participant getParticipant(UUID id);
+    ResponseEntity<Object> removeParticipant(UUID id, HttpServletRequest request);
+    ResponseEntity<Object> getParticipant(UUID id, HttpServletRequest request);
     //List<Participant> getParticipants(Long id);
-    Participant addParticipant(Participant participant);
+    ResponseEntity<Object> addParticipant(Participant participant, HttpServletRequest request);
 }
 
