@@ -2,6 +2,8 @@ package com.example.BabyMonitorLobbyService.model;
 
 import jakarta.persistence.*;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "active_lobbies")
 public class ActiveLobby {
@@ -11,14 +13,14 @@ public class ActiveLobby {
     @Column(name = "lobbyid")
     private Integer id;
     @Column(name = "ownerid", nullable = false)
-    private Integer ownerid;
+    private UUID ownerid;
     @Column(name = "simulationid", nullable = false)
     private Integer simulationid;
     @Column(name = "active", nullable = false)
     private boolean active;
     //private List<Participant> participants;
 
-    public ActiveLobby(int id, int _ownerid, int _simulationid, boolean _active) {
+    public ActiveLobby(int id, UUID _ownerid, int _simulationid, boolean _active) {
         this.id = id;
         this.ownerid = _ownerid;
         this.simulationid = _simulationid;
@@ -39,11 +41,11 @@ public class ActiveLobby {
         this.id = id;
     }
 
-    public int getOwnerid() {
+    public UUID getOwnerid() {
         return ownerid;
     }
 
-    public void setOwnerid(int ownerid) {
+    public void setOwnerid(UUID ownerid) {
         this.ownerid = ownerid;
     }
 
