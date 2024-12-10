@@ -1,54 +1,61 @@
 package com.example.BabyMonitorLobbyService.service;
 
-import com.example.BabyMonitorLobbyService.model.Lobby;
-import com.example.BabyMonitorLobbyService.model.Participant;
+import com.example.BabyMonitorLobbyService.model.ActiveLobby;
+import com.example.BabyMonitorLobbyService.repository.ActiveLobbyRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
+import java.sql.SQLException;
+
+
 
 @Service
 public class LobbyServiceImpl implements LobbyService {
 
-    private final List<Lobby> lobbies = new ArrayList<>();
+    private final ActiveLobbyRepository repository;
+    private final List<ActiveLobby> lobbies = new ArrayList<>();
     private Long nextLobbyId = 1L;
 
-    @Override
-    public Lobby createLobby(String name) {
-        Lobby lobby = new Lobby(nextLobbyId++, name);
-        lobbies.add(lobby);
-        return lobby;
+    @Autowired
+    public LobbyServiceImpl(ActiveLobbyRepository repository) throws SQLException {
+        this.repository = repository;
     }
 
-    @Override
-    public void closeLobby(Long id) {
-        lobbies.stream()
-                .filter(lobby -> lobby.getId().equals(id))
-                .findFirst()
-                .ifPresent(lobby -> lobby.setActive(false));
-    }
+    public void openLobby(ActiveLobby _lobby)
+    {
+        repository.save(_lobby);
+        /*
+        try
+        {
 
-    @Override
-    public Lobby getLobby(Long id) {
-        return lobbies.stream()
-                .filter(lobby -> lobby.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-    }
+            Connection con = DatabaseConnector.getActiveLobbiesConnection();
+            System.out.println("Connected to active_lobbies database!");
+            Statement statement = con.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM active_lobbies");
+            con.close();
 
-    @Override
-    public List<Lobby> getAllLobbies() {
-        return lobbies;
-    }
 
-    @Override
-    public Lobby addParticipant(Long lobbyId, Participant participant) {
-        Lobby lobby = getLobby(lobbyId);
-        if (lobby != null && lobby.isActive()) {
-            lobby.addParticipant(participant);
         }
-        return lobby;
+        catch ()
+        {
+            System.err.println("Connection failed: " + e.getMessage());
+        }
+        */
+
     }
+
+    public ActiveLobby getLobby(Long lobbyId) {
+        return repository.findById(lobbyId).orElse(null);
+    }
+
+    @Override
+    public void closeLobby(int id) {
+
+    }
+
+
 }
 
