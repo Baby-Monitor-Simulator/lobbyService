@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface LobbyService {
     void closeLobby(int id);
+    ActiveLobby getLobby(Long lobbyId);
     void openLobby(ActiveLobby _lobby);
 }
 

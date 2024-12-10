@@ -47,6 +47,10 @@ public class LobbyServiceImpl implements LobbyService {
 
     }
 
+    public ActiveLobby getLobby(Long lobbyId) {
+        return repository.findById(lobbyId).orElse(null);
+    }
+
     @Override
     public void closeLobby(int id) {
 
