@@ -28,58 +28,84 @@ public class ParticipantServiceImpl implements ParticipantService {
     private String rsaPublicKeyString;
 
     private final ParticipantRepository repository;
+    private final LobbyService lobbyService;
 
     @Autowired
-    public ParticipantServiceImpl(ParticipantRepository repository) throws SQLException {
+    public ParticipantServiceImpl(ParticipantRepository repository, LobbyService lobbyService) throws SQLException {
         this.repository = repository;
+        this.lobbyService = lobbyService;
     }
     private final List<Participant> participants = new ArrayList<>();
 
     @Override
     public ResponseEntity<Object> addParticipant(Participant participant, HttpServletRequest request) {
+        //Extract subject from the JWT, subject is the UserID
         UUID userid = extractSubject(request);
-        if (userid != null) {
-            if (participant.getUserId().equals(userid)) {
-                if (!isInLobby(participant.getUserId())) {
-                    return ResponseEntity
-                            .status(HttpStatus.OK)
-                            .body(repository.save(participant));
-                }
-                return ResponseEntity
-                        .status(HttpStatus.CONFLICT)
-                        .body("User already in a lobby");
-            }
+
+        //Get the lobby the user would like to join
+        ActiveLobby lobby = lobbyService.getLobby(participant.getLobbyId());
+
+        //Check if the lobby is active
+        if (lobby == null || !lobby.getActive()) {
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    //.body(String.format("Lobby with ID %s cannot be found or is inactive", participant.getLobbyId()));
+                    .body("Lobby cannot be found or is inactive");
+        }
+
+        //Is the subject null?
+        if (userid == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .body("No userID could be found in JWT token");
+        }
+
+        if (!participant.getUserId().equals(userid)) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Given userIDs were not the same");
         }
+
+        if (lobby.getOwnerid().equals(userid)) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body("Owner cannot join lobby");
+        }
+
+        if (!isInLobby(participant.getUserId())) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(repository.save(participant));
+        }
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body("No userID could be found in token");
+                .status(HttpStatus.CONFLICT)
+                .body("User already in a lobby");
     }
 
     @Override
     public ResponseEntity<Object> removeParticipant(UUID id, HttpServletRequest request) {
         UUID userid = extractSubject(request);
-        if (userid != null) {
-            if (id.equals(userid)) {
-                if (isInLobby(id)) {
-                    repository.deleteById(id);
-                    return ResponseEntity
-                            .status(HttpStatus.OK)
-                            .body("User removed from lobby");
-                }
-                return ResponseEntity
-                        .status(HttpStatus.CONFLICT)
-                        .body("User is not in a lobby");
-            }
+        if (userid == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .body("No userID could be found in token");
+        }
+
+        if (!id.equals(userid)) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Given userIDs were not the same");
         }
+
+        if (isInLobby(id)) {
+            repository.deleteById(id);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body("User removed from lobby");
+        }
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body("No userID could be found in token");
+                .status(HttpStatus.CONFLICT)
+                .body("User is not in a lobby");
     }
 
     @Override
