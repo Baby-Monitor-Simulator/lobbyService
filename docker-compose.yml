@@ -6,10 +6,10 @@ services:
     ports:
     - "8083:8083"
     volumes:
-      - ./src:/identity/src           # Mount the local src directory
-      - ./target:/identity/target       # Mount the local target directory
-      - ./mvnw:/identity/mvnw           # Mount the mvnw script
-      - ./pom.xml:/identity/pom.xml     # Mount the pom.xml if needed
+      - ./src:/lobbyService/src           # Mount the local src directory
+      - ./target:/lobbyService/target       # Mount the local target directory
+      - ./mvnw:/lobbyService/mvnw           # Mount the mvnw script
+      - ./pom.xml:/lobbyService/pom.xml     # Mount the pom.xml if needed
     environment:
       SPRING_PROFILES_ACTIVE: dev
     env_file:

@@ -20,7 +20,7 @@ import java.util.UUID;
 
 @Service
 public class ParticipantServiceImpl implements ParticipantService {
-    @Value("${jwt.rs256}")
+    @Value("${jwt_rsa256}")
     private String rsaPublicKeyString;
 
     private final ParticipantRepository repository;
