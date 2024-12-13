@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 import java.util.UUID;
 
-@Entity
+
 @Table(name = "active_lobbies")
 public class ActiveLobby {
 

@@ -10,8 +10,6 @@ import java.util.List;
 
 import java.sql.SQLException;
 
-
-
 @Service
 public class LobbyServiceImpl implements LobbyService {
 

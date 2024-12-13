@@ -1,0 +1,58 @@
+services:
+  lobby:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+    - "8083:8083"
+    volumes:
+      - ./src:/identity/src           # Mount the local src directory
+      - ./target:/identity/target       # Mount the local target directory
+      - ./mvnw:/identity/mvnw           # Mount the mvnw script
+      - ./pom.xml:/identity/pom.xml     # Mount the pom.xml if needed
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    env_file:
+      - .env
+  # identity-service:
+  #   build:
+  #     context: ./identity
+  #     dockerfile: Dockerfile.dev
+  #   ports:
+  #     - "8091:8091"
+  #   volumes:
+  #     - ./identity:/identity
+  #     - ~/.m2:/root/.m2
+  #   environment:
+  #     SPRING_PROFILES_ACTIVE: dev
+  participants_db:
+    image: postgres:15
+    container_name: participants-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: participants
+    ports:
+      - "5432:5432"
+    volumes:
+      - participants_data:/var/lib/postgresql/data
+    restart: always
+  activelobbies_db:
+    image: postgres:15
+    container_name: activelobbies-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: active_lobbies
+    ports:
+      - "5420:5432"
+    volumes:
+      - activelobbies_data:/var/lib/postgresql/data
+    restart: always
+volumes:
+  participants_data:
+  activelobbies_data:
+
+networks:
+  keycloak_network:
+    driver: bridge
