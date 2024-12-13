@@ -2,29 +2,25 @@ package com.example.BabyMonitorLobbyService.service;
 
 import com.example.BabyMonitorLobbyService.model.ActiveLobby;
 import com.example.BabyMonitorLobbyService.model.Participant;
-import com.example.BabyMonitorLobbyService.repository.ActiveLobbyRepository;
 import com.example.BabyMonitorLobbyService.repository.ParticipantRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.security.interfaces.RSAPublicKey;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
 public class ParticipantServiceImpl implements ParticipantService {
-    @Value("${jwt.rs256}")
+    @Value("${jwt_rsa256}")
     private String rsaPublicKeyString;
 
     private final ParticipantRepository repository;

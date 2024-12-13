@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class BabyMonitorLobbyServiceApplication {
 
 	public static void main(String[] args) {
-		DotEnvLoader.loadEnv();
+		//DotEnvLoader.loadEnv();
 		SpringApplication.run(BabyMonitorLobbyServiceApplication.class, args);
 	}
 
