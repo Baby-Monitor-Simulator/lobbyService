@@ -53,7 +53,8 @@ public class ParticipantController {
     }
 
     @GetMapping("/current/{id}")
-    public ResponseEntity<Object> geParticipant(@PathVariable UUID id, HttpServletRequest request) {
-        return participantService.getParticipant(id, request);
+    public ResponseEntity<Object> geParticipant(@PathVariable UUID id) {
+        System.out.println("Getting participant with id: " + id);
+        return participantService.getParticipant(id);
     }
 }

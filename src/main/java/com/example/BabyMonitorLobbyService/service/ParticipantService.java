@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface ParticipantService {
     ResponseEntity<Object> removeParticipant(UUID id, HttpServletRequest request);
-    ResponseEntity<Object> getParticipant(UUID id, HttpServletRequest request);
+    ResponseEntity<Object> getParticipant(UUID id);
     //List<Participant> getParticipants(Long id);
     ResponseEntity<Object> addParticipant(Participant participant, HttpServletRequest request);
 }

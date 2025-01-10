@@ -105,13 +105,14 @@ public class ParticipantServiceImpl implements ParticipantService {
     }
 
     @Override
-    public ResponseEntity<Object> getParticipant(UUID id, HttpServletRequest request) {
+    public ResponseEntity<Object> getParticipant(UUID id) {
+        System.out.println("Getting participant with id: " + id);
         Participant participant = repository.findById(id).orElse(null);
         if (participant != null)
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(participant);
-
+        System.out.println("Participant not found");
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body("User is not in a lobby");
