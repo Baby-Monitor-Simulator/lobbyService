@@ -147,6 +147,11 @@ public class ParticipantServiceImpl implements ParticipantService {
         return null;
     }
 
+    @Override
+    public List<Participant> getAllLobbyParticipants(Integer lobbyId){
+        return repository.findAllByLobbyId(lobbyId);
+    }
+
     private boolean isInLobby(UUID userId) {
         return repository.findById(userId).isPresent();
     }

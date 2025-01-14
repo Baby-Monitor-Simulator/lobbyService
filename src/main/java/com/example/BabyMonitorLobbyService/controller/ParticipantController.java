@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 //import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -53,8 +55,20 @@ public class ParticipantController {
     }
 
     @GetMapping("/current/{id}")
-    public ResponseEntity<Object> geParticipant(@PathVariable UUID id) {
+    public ResponseEntity<Object> getParticipant(@PathVariable UUID id) {
         System.out.println("Getting participant with id: " + id);
         return participantService.getParticipant(id);
+    }
+
+    @GetMapping("/lobby/{lobbyid}")
+    public ResponseEntity<List<Participant>> getLobbyParticipants(@PathVariable Integer lobbyid) {
+        System.out.println("Getting lobby participants with lobbyid: " + lobbyid);
+        List<Participant> participantList = participantService.getAllLobbyParticipants(lobbyid);
+        System.out.println("Found lobby participants: " + participantList);
+        if (participantList.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(participantList);
+        }
     }
 }
