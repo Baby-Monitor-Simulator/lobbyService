@@ -3,10 +3,12 @@ import com.example.BabyMonitorLobbyService.model.Participant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface ParticipantRepository extends JpaRepository<Participant, UUID>
 {
-    // Custom query methods (optional)
+    List<Participant> findByUserId(UUID participantId);
+    List<Participant> findAllByLobbyId(Integer lobbyId);
 }

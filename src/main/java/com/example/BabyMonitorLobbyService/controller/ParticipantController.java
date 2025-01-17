@@ -2,35 +2,44 @@ package com.example.BabyMonitorLobbyService.controller;
 
 import com.example.BabyMonitorLobbyService.model.Participant;
 import com.example.BabyMonitorLobbyService.model.events.ParticipantAction;
-import com.example.BabyMonitorLobbyService.service.JwtAuthConverter;
+//import com.example.BabyMonitorLobbyService.service.JwtAuthConverter;
 import com.example.BabyMonitorLobbyService.service.ParticipantService;
 import com.example.BabyMonitorLobbyService.service.RabbitMQSenderService;
 import io.micrometer.common.lang.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+//import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/participant")
 public class ParticipantController {
-    @Autowired
-    private JwtAuthConverter tokenProvider;
+    /*@Autowired
+    private JwtAuthConverter tokenProvider;*/
 
     private final ParticipantService participantService;
     private final RabbitMQSenderService senderService;
+    private final SimpMessagingTemplate template;
 
     @Autowired
-    public ParticipantController(ParticipantService participantService, @Nullable RabbitMQSenderService senderService) {
+    public ParticipantController(ParticipantService participantService, @Nullable RabbitMQSenderService senderService, SimpMessagingTemplate simpMessagingTemplate) {
         this.participantService = participantService;
         this.senderService = senderService;
+        this.template = simpMessagingTemplate;
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('deelnemer')")
+    //@PreAuthorize("hasRole('deelnemer')")
     public ResponseEntity<Object> addParticipant(@RequestBody Participant participant, HttpServletRequest request) {
+        String dest = "/lobbies/" + participant.getLobbyId();
+        String pay = "Hello: " + participant.getUserId() + ", welcome to: " + participant.getLobbyId();
+
+        template.convertAndSend(dest, pay);
         return participantService.addParticipant(participant, request);
     }
 
@@ -40,13 +49,26 @@ public class ParticipantController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('deelnemer')")
+    //@PreAuthorize("hasRole('deelnemer')")
     public ResponseEntity<Object> removeParticipant(@PathVariable UUID id, HttpServletRequest request) {
         return participantService.removeParticipant(id, request);
     }
 
     @GetMapping("/current/{id}")
-    public ResponseEntity<Object> geParticipant(@PathVariable UUID id, HttpServletRequest request) {
-        return participantService.getParticipant(id, request);
+    public ResponseEntity<Object> getParticipant(@PathVariable UUID id) {
+        System.out.println("Getting participant with id: " + id);
+        return participantService.getParticipant(id);
+    }
+
+    @GetMapping("/lobby/{lobbyid}")
+    public ResponseEntity<List<Participant>> getLobbyParticipants(@PathVariable Integer lobbyid) {
+        System.out.println("Getting lobby participants with lobbyid: " + lobbyid);
+        List<Participant> participantList = participantService.getAllLobbyParticipants(lobbyid);
+        System.out.println("Found lobby participants: " + participantList);
+        if (participantList.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(participantList);
+        }
     }
 }

@@ -14,18 +14,26 @@ public class ActiveLobby {
     private Integer id;
     @Column(name = "ownerid", nullable = false)
     private UUID ownerid;
-    @Column(name = "simulationid", nullable = false)
-    private Integer simulationid;
+    @Column(name = "scenarioid", nullable = false)
+    private String scenarioid;
     @Column(name = "active", nullable = false)
     private boolean active;
     //private List<Participant> participants;
 
-    public ActiveLobby(int id, UUID _ownerid, int _simulationid, boolean _active) {
+    public ActiveLobby(int id, UUID _ownerid, String _scenarioid, boolean _active) {
         this.id = id;
         this.ownerid = _ownerid;
-        this.simulationid = _simulationid;
+        this.scenarioid = _scenarioid;
         this.active = _active;  // Lobbies are active by default when created
     }
+
+
+    public ActiveLobby(UUID _ownerid, String _scenarioid) {
+        this.ownerid = _ownerid;
+        this.scenarioid = _scenarioid;
+        this.active = false;
+    }
+
 
     public ActiveLobby() {
 
@@ -49,9 +57,9 @@ public class ActiveLobby {
         this.ownerid = ownerid;
     }
 
-    public int getSimulationid(){ return simulationid;}
+    public String getScenarioid(){ return scenarioid;}
 
-    public void setSimulationid(int simulationid){ this.simulationid = simulationid; }
+    public void setScenarioid(String scenarioid){ this.scenarioid = scenarioid; }
 
     public boolean getActive() {
         return active;

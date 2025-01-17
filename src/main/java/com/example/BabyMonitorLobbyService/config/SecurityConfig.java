@@ -1,3 +1,4 @@
+/*
 package com.example.BabyMonitorLobbyService.config;
 
 import lombok.RequiredArgsConstructor;
@@ -35,4 +36,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-}
+}*/
