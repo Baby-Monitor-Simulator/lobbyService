@@ -42,11 +42,11 @@ public class ParticipantServiceImpl implements ParticipantService {
         ActiveLobby lobby = lobbyService.getLobby(participant.getLobbyId());
 
         //Check if the lobby is active
-        if (lobby == null || !lobby.getActive()) {
+        if (lobby == null || lobby.getActive()) {
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
                     //.body(String.format("Lobby with ID %s cannot be found or is inactive", participant.getLobbyId()));
-                    .body("Lobby cannot be found or is inactive");
+                    .body("Lobby cannot be found or is active");
         }
 
         //Is the subject null?

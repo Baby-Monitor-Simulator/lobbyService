@@ -1,8 +1,10 @@
 package com.example.BabyMonitorLobbyService.service;
 
 import com.example.BabyMonitorLobbyService.model.ActiveLobby;
+import com.example.BabyMonitorLobbyService.model.LobbyArchief;
 import com.example.BabyMonitorLobbyService.model.Participant;
 import com.example.BabyMonitorLobbyService.repository.ActiveLobbyRepository;
+import com.example.BabyMonitorLobbyService.repository.LobbyArchiefRepository;
 import com.example.BabyMonitorLobbyService.repository.ParticipantRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -12,12 +14,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.interfaces.RSAPublicKey;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import java.sql.SQLException;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class LobbyServiceImpl implements LobbyService {
@@ -25,13 +24,15 @@ public class LobbyServiceImpl implements LobbyService {
     private String rsaPublicKeyString;
     private final ActiveLobbyRepository repository;
     private final ParticipantRepository participantRepository;
+    private final LobbyArchiefRepository lobbyArchiefRepository;
     private final List<ActiveLobby> lobbies = new ArrayList<>();
     private Long nextLobbyId = 1L;
 
     @Autowired
-    public LobbyServiceImpl(ActiveLobbyRepository repository, ParticipantRepository participantRepository) throws SQLException {
+    public LobbyServiceImpl(ActiveLobbyRepository repository, ParticipantRepository participantRepository, LobbyArchiefRepository lobbyArchiefRepository) throws SQLException {
         this.repository = repository;
         this.participantRepository = participantRepository;
+        this.lobbyArchiefRepository = lobbyArchiefRepository;
     }
 
     public ActiveLobby openLobby(String authHeader, String scenarioId)
@@ -66,14 +67,68 @@ public class LobbyServiceImpl implements LobbyService {
         return savedLobby;
     }
 
+    public boolean activateLobby(Long lobbyId) {
+        // Zoek de lobby op in de database
+        Optional<ActiveLobby> optionalLobby = repository.findById(lobbyId);
+
+        if (optionalLobby.isPresent()) {
+            ActiveLobby lobby = optionalLobby.get();
+            // Zet de lobby actief
+            lobby.setActive(true);
+            repository.save(lobby); // Sla de wijziging op
+            return true;
+        }
+
+        // Lobby niet gevonden
+        return false;
+    }
+
+    public boolean deactivateLobby(Long lobbyId) {
+        // Zoek de lobby op in de database
+        Optional<ActiveLobby> optionalLobby = repository.findById(lobbyId);
+
+        if (optionalLobby.isPresent()) {
+            ActiveLobby lobby = optionalLobby.get();
+            // Zet de lobby inactief
+            lobby.setActive(false);
+            repository.save(lobby); // Sla de wijziging op
+            return true;
+        }
+
+        // Lobby niet gevonden
+        return false;
+    }
+
+    public void closeLobby(long id) {
+        Optional<ActiveLobby> optionalLobby = repository.findById(id);
+
+        if (optionalLobby.isPresent()) {
+            ActiveLobby activeLobby = optionalLobby.get();
+
+            // Verplaats gegevens naar LobbyArchief
+            LobbyArchief lobbyArchief = new LobbyArchief(
+                    activeLobby.getId(),
+                    activeLobby.getOwnerid(),
+                    activeLobby.getScenarioid(),
+                    activeLobby.getActive(),
+                    new Date() // Archiveringsdatum
+            );
+            lobbyArchiefRepository.save(lobbyArchief);
+
+            // Verwijder de actieve lobby
+            repository.deleteById(id);
+        }
+    }
+
+
+
+
+
     public ActiveLobby getLobby(Long lobbyId) {
         return repository.findById(lobbyId).orElse(null);
     }
 
-    @Override
-    public void closeLobby(int id) {
 
-    }
 
 
     private UUID extractSubject(String authHeader) {
