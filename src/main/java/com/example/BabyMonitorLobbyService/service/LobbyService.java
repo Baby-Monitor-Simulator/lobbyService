@@ -6,8 +6,10 @@ import com.example.BabyMonitorLobbyService.model.Participant;
 import java.util.List;
 
 public interface LobbyService {
-    void closeLobby(int id);
     ActiveLobby getLobby(Long lobbyId);
     ActiveLobby openLobby(String authHeader, String scenarioId);
+    boolean activateLobby(Long lobbyId);
+    boolean deactivateLobby(Long lobbyId);
+    void closeLobby(long id);
 }
 
