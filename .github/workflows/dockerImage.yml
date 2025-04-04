@@ -36,7 +36,7 @@ jobs:
     # Build the Docker image
     - name: Build Docker image
       run: |
-        docker build . --file Dockerfile --tag babymonitors/lobbyservice:$TAG --tag babymonitors/lobbyservice:${{ env.VERSION }}.${{ github.run_number }}
+        docker build . --file Dockerfile.dev --tag babymonitors/lobbyservice:$TAG --tag babymonitors/lobbyservice:${{ env.VERSION }}.${{ github.run_number }}
 
     # Log in to Docker Hub using secrets
     - name: Log in to Docker Hub
