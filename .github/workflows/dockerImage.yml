@@ -5,7 +5,6 @@ on:
     branches:
       - main
       - dev
-      - Feature-Remove-manual-parsing
 
 jobs:
   build:
