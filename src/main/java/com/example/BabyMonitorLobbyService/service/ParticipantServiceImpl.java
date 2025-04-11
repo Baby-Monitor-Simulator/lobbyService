@@ -83,7 +83,7 @@ public class ParticipantServiceImpl implements ParticipantService {
 
     @Override
     public ResponseEntity<Object> removeParticipant(UUID id, HttpServletRequest request) {
-        UUID userid = extractSubject(request);
+        UUID userid = getCurrentUserId();
         if (userid == null) {
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
@@ -121,34 +121,6 @@ public class ParticipantServiceImpl implements ParticipantService {
                 .body("User is not in a lobby");
     }
 
-
-    private UUID extractSubject(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        System.out.println("Authorization Header: " + bearerToken);
-
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            // Remove "Bearer " prefix
-            String token = bearerToken.substring(7);
-
-            try {
-                // Load the RSA public key
-                RSAPublicKey publicKey = RsaKeyUtil.getPublicKey(rsaPublicKeyString);
-
-                // Parse the JWT and extract the claims
-                Claims claims = Jwts.parserBuilder()
-                        .setSigningKey(publicKey)  // Use RSA public key here
-                        .build()
-                        .parseClaimsJws(token)   // Use the stripped token
-                        .getBody();
-
-                // Extract and return the "sub" claim as UUID
-                return UUID.fromString(claims.getSubject());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
 
     @Override
     public List<Participant> getAllLobbyParticipants(Integer lobbyId){
