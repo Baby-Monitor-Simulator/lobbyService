@@ -12,6 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import java.security.interfaces.RSAPublicKey;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -36,7 +39,7 @@ public class ParticipantServiceImpl implements ParticipantService {
     @Override
     public ResponseEntity<Object> addParticipant(Participant participant, HttpServletRequest request) {
         //Extract subject from the JWT, subject is the UserID
-        UUID userid = extractSubject(request);
+        UUID userid = getCurrentUserId();
 
         //Get the lobby the user would like to join
         ActiveLobby lobby = lobbyService.getLobby(participant.getLobbyId());
@@ -154,6 +157,23 @@ public class ParticipantServiceImpl implements ParticipantService {
 
     private boolean isInLobby(UUID userId) {
         return repository.findById(userId).isPresent();
+    }
+
+    private UUID getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            String sub = jwt.getSubject();
+            if (sub != null) {
+                try {
+                    return UUID.fromString(sub);
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Error parsing subject claim as UUID: " + sub);
+                }
+            }
+        }
+        System.err.println("Could not get authenticated user ID from Security Context.");
+        return null; // Or throw exception
     }
 }
 
