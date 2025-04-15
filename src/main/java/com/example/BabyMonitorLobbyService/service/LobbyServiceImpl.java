@@ -38,19 +38,19 @@ public class LobbyServiceImpl implements LobbyService {
 
     public ActiveLobby openLobby(String scenarioId)
     {
-        UUID UUID = getCurrentUserId();
+        UUID userId = getCurrentUserId();
         ActiveLobby savedLobby = new ActiveLobby();
         savedLobby.setId(-1);
         boolean isAllowed = true;
         // Check whether the user already has an open lobby
-        List<ActiveLobby> ownedLobbies =  repository.findByOwnerid(UUID);
+        List<ActiveLobby> ownedLobbies =  repository.findByOwnerid(userId);
 
         if (!ownedLobbies.isEmpty()){
             isAllowed = false;
         }
 
         // Check whether the user is currently part of a lobby
-        List<Participant> participants = participantRepository.findByUserId(UUID);
+        List<Participant> participants = participantRepository.findByUserId(userId);
         if (!participants.isEmpty()){
             Long lobbyId = participants.get(0).getLobbyId();
             Optional<ActiveLobby> participatedLobbies = repository.findById(lobbyId);
@@ -60,7 +60,7 @@ public class LobbyServiceImpl implements LobbyService {
         }
 
         if (isAllowed){
-            ActiveLobby lobby = new ActiveLobby(UUID, scenarioId);
+            ActiveLobby lobby = new ActiveLobby(userId, scenarioId);
 
             savedLobby = repository.save(lobby);
         }
