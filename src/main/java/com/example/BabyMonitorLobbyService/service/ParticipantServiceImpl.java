@@ -23,8 +23,6 @@ import java.util.UUID;
 
 @Service
 public class ParticipantServiceImpl implements ParticipantService {
-    @Value("${jwt_rsa256}")
-    private String rsaPublicKeyString;
 
     private final ParticipantRepository repository;
     private final LobbyService lobbyService;
@@ -37,7 +35,7 @@ public class ParticipantServiceImpl implements ParticipantService {
     private final List<Participant> participants = new ArrayList<>();
 
     @Override
-    public ResponseEntity<Object> addParticipant(Participant participant, HttpServletRequest request) {
+    public ResponseEntity<Object> addParticipant(Participant participant) {
         //Extract subject from the JWT, subject is the UserID
         UUID userid = getCurrentUserId();
 
@@ -82,7 +80,7 @@ public class ParticipantServiceImpl implements ParticipantService {
     }
 
     @Override
-    public ResponseEntity<Object> removeParticipant(UUID id, HttpServletRequest request) {
+    public ResponseEntity<Object> removeParticipant(UUID id) {
         UUID userid = getCurrentUserId();
         if (userid == null) {
             return ResponseEntity

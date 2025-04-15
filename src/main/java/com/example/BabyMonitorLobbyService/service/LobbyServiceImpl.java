@@ -23,8 +23,6 @@ import java.sql.SQLException;
 
 @Service
 public class LobbyServiceImpl implements LobbyService {
-    @Value("${jwt_rsa256}")
-    private String rsaPublicKeyString;
     private final ActiveLobbyRepository repository;
     private final ParticipantRepository participantRepository;
     private final LobbyArchiefRepository lobbyArchiefRepository;
@@ -38,7 +36,7 @@ public class LobbyServiceImpl implements LobbyService {
         this.lobbyArchiefRepository = lobbyArchiefRepository;
     }
 
-    public ActiveLobby openLobby(String authHeader, String scenarioId)
+    public ActiveLobby openLobby(String scenarioId)
     {
         UUID UUID = getCurrentUserId();
         ActiveLobby savedLobby = new ActiveLobby();
