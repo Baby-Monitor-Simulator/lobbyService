@@ -1,8 +1,6 @@
-/*
 package com.example.BabyMonitorLobbyService.config;
 
 import lombok.RequiredArgsConstructor;
-import com.example.BabyMonitorLobbyService.service.JwtAuthConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -17,8 +15,6 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @RequiredArgsConstructor
 // Zorgt ervoor dat @PreAuthorize werkt
 public class SecurityConfig {
-
-    private final JwtAuthConverter jwtAuthConverter;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -30,10 +26,10 @@ public class SecurityConfig {
 
 
         http
-                .oauth2ResourceServer()
-                .jwt()
-                .jwtAuthenticationConverter(jwtAuthConverter);
+                .oauth2ResourceServer(oauth2 -> oauth2
+                                      .jwt(jwt -> jwt
+                                           .jwkSetUri("http://keycloak:8080/realms/Babymonitor/protocol/openid-connect/certs")));
 
         return http.build();
     }
-}*/
+}

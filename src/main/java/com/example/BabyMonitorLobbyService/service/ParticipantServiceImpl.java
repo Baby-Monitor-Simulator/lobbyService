@@ -12,6 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import java.security.interfaces.RSAPublicKey;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -20,8 +23,6 @@ import java.util.UUID;
 
 @Service
 public class ParticipantServiceImpl implements ParticipantService {
-    @Value("${jwt_rsa256}")
-    private String rsaPublicKeyString;
 
     private final ParticipantRepository repository;
     private final LobbyService lobbyService;
@@ -34,19 +35,19 @@ public class ParticipantServiceImpl implements ParticipantService {
     private final List<Participant> participants = new ArrayList<>();
 
     @Override
-    public ResponseEntity<Object> addParticipant(Participant participant, HttpServletRequest request) {
+    public ResponseEntity<Object> addParticipant(Participant participant) {
         //Extract subject from the JWT, subject is the UserID
-        UUID userid = extractSubject(request);
+        UUID userid = getCurrentUserId();
 
         //Get the lobby the user would like to join
         ActiveLobby lobby = lobbyService.getLobby(participant.getLobbyId());
 
         //Check if the lobby is active
-        if (lobby == null || !lobby.getActive()) {
+        if (lobby == null || lobby.getActive()) {
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
                     //.body(String.format("Lobby with ID %s cannot be found or is inactive", participant.getLobbyId()));
-                    .body("Lobby cannot be found or is inactive");
+                    .body("Lobby cannot be found or is active");
         }
 
         //Is the subject null?
@@ -79,8 +80,8 @@ public class ParticipantServiceImpl implements ParticipantService {
     }
 
     @Override
-    public ResponseEntity<Object> removeParticipant(UUID id, HttpServletRequest request) {
-        UUID userid = extractSubject(request);
+    public ResponseEntity<Object> removeParticipant(UUID id) {
+        UUID userid = getCurrentUserId();
         if (userid == null) {
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
@@ -119,34 +120,6 @@ public class ParticipantServiceImpl implements ParticipantService {
     }
 
 
-    private UUID extractSubject(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        System.out.println("Authorization Header: " + bearerToken);
-
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            // Remove "Bearer " prefix
-            String token = bearerToken.substring(7);
-
-            try {
-                // Load the RSA public key
-                RSAPublicKey publicKey = RsaKeyUtil.getPublicKey(rsaPublicKeyString);
-
-                // Parse the JWT and extract the claims
-                Claims claims = Jwts.parserBuilder()
-                        .setSigningKey(publicKey)  // Use RSA public key here
-                        .build()
-                        .parseClaimsJws(token)   // Use the stripped token
-                        .getBody();
-
-                // Extract and return the "sub" claim as UUID
-                return UUID.fromString(claims.getSubject());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-
     @Override
     public List<Participant> getAllLobbyParticipants(Integer lobbyId){
         return repository.findAllByLobbyId(lobbyId);
@@ -154,6 +127,23 @@ public class ParticipantServiceImpl implements ParticipantService {
 
     private boolean isInLobby(UUID userId) {
         return repository.findById(userId).isPresent();
+    }
+
+    private UUID getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            String sub = jwt.getSubject();
+            if (sub != null) {
+                try {
+                    return UUID.fromString(sub);
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Error parsing subject claim as UUID: " + sub);
+                }
+            }
+        }
+        System.err.println("Could not get authenticated user ID from Security Context.");
+        return null; // Or throw exception
     }
 }
 

@@ -32,11 +32,11 @@ public class LobbyController {
 
     @PostMapping("/NewLobby")
 //    @PreAuthorize("hasRole('instructeur')")
-    public ResponseEntity<?> newLobby(@RequestBody NewLobbyDTO lobbyDTO, @RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<?> newLobby(@RequestBody NewLobbyDTO lobbyDTO) {
         System.out.println("Trying to start new lobby...");
 
         // Check if lobby is allowed, if so, create it
-        ActiveLobby savedLobby = lobbyService.openLobby(authorization, lobbyDTO.getScenarioid());
+        ActiveLobby savedLobby = lobbyService.openLobby(lobbyDTO.getScenarioid());
 
         if (savedLobby.getId() != -1){
             NewLobbyResponseDTO responseDTO = new NewLobbyResponseDTO(savedLobby.getId());
@@ -46,16 +46,50 @@ public class LobbyController {
         }
     }
 
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<?> activateLobby(@PathVariable Long id) {
+        boolean updated = lobbyService.activateLobby(id);
+
+        if (updated) {
+            return new ResponseEntity<>("Lobby is now active", HttpStatusCode.valueOf(200));
+        } else {
+            return new ResponseEntity<>("Lobby not found or could not be activated", HttpStatusCode.valueOf(404));
+        }
+    }
+
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<?> deactivateLobby(@PathVariable Long id) {
+        boolean updated = lobbyService.deactivateLobby(id);
+
+        if (updated) {
+            return new ResponseEntity<>("Lobby is now inactive", HttpStatusCode.valueOf(200));
+        } else {
+            return new ResponseEntity<>("Lobby not found or could not be deactivated", HttpStatusCode.valueOf(404));
+        }
+    }
+
+
+    @DeleteMapping("/{id}/close")
+    public ResponseEntity<?> closeLobby(@PathVariable long id) {
+        try {
+            lobbyService.closeLobby(id);
+            return new ResponseEntity<>("Lobby succesvol gearchiveerd en gesloten", HttpStatusCode.valueOf(200));
+        } catch (Exception e) {
+            return new ResponseEntity<>("Fout bij het sluiten van de lobby: " + e.getMessage(), HttpStatusCode.valueOf(500));
+        }
+    }
+
+
 
     @PostMapping("/MQ")
     public void mQ(@RequestBody ParticipantAction action) {
         senderService.sendParticipantAction(action);
     }
 
-    @DeleteMapping("/{id}")
-    public void closeLobby(@PathVariable int id) {
-        lobbyService.closeLobby(id);
-        // Add to closed lobby DB
-    }
+//    @DeleteMapping("/{id}")
+//    public void closeLobby(@PathVariable int id) {
+//        lobbyService.closeLobby(id);
+//        // Add to closed lobby DB
+//    }
 
 }
