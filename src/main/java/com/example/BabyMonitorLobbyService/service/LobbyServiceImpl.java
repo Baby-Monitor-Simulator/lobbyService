@@ -11,6 +11,9 @@ import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.security.interfaces.RSAPublicKey;
@@ -20,8 +23,6 @@ import java.sql.SQLException;
 
 @Service
 public class LobbyServiceImpl implements LobbyService {
-    @Value("${jwt_rsa256}")
-    private String rsaPublicKeyString;
     private final ActiveLobbyRepository repository;
     private final ParticipantRepository participantRepository;
     private final LobbyArchiefRepository lobbyArchiefRepository;
@@ -35,21 +36,21 @@ public class LobbyServiceImpl implements LobbyService {
         this.lobbyArchiefRepository = lobbyArchiefRepository;
     }
 
-    public ActiveLobby openLobby(String authHeader, String scenarioId)
+    public ActiveLobby openLobby(String scenarioId)
     {
-        UUID UUID = extractSubject(authHeader);
+        UUID userId = getCurrentUserId();
         ActiveLobby savedLobby = new ActiveLobby();
         savedLobby.setId(-1);
         boolean isAllowed = true;
         // Check whether the user already has an open lobby
-        List<ActiveLobby> ownedLobbies =  repository.findByOwnerid(UUID);
+        List<ActiveLobby> ownedLobbies =  repository.findByOwnerid(userId);
 
         if (!ownedLobbies.isEmpty()){
             isAllowed = false;
         }
 
         // Check whether the user is currently part of a lobby
-        List<Participant> participants = participantRepository.findByUserId(UUID);
+        List<Participant> participants = participantRepository.findByUserId(userId);
         if (!participants.isEmpty()){
             Long lobbyId = participants.get(0).getLobbyId();
             Optional<ActiveLobby> participatedLobbies = repository.findById(lobbyId);
@@ -59,7 +60,7 @@ public class LobbyServiceImpl implements LobbyService {
         }
 
         if (isAllowed){
-            ActiveLobby lobby = new ActiveLobby(UUID, scenarioId);
+            ActiveLobby lobby = new ActiveLobby(userId, scenarioId);
 
             savedLobby = repository.save(lobby);
         }
@@ -131,26 +132,21 @@ public class LobbyServiceImpl implements LobbyService {
 
 
 
-    private UUID extractSubject(String authHeader) {
-        String token = authHeader.substring(7);
-
-        try {
-            // Load the RSA public key
-            RSAPublicKey publicKey = RsaKeyUtil.getPublicKey(rsaPublicKeyString);
-
-            // Parse the JWT and extract the claims
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(publicKey)  // Use RSA public key here
-                    .build()
-                    .parseClaimsJws(token)   // Use the stripped token
-                    .getBody();
-
-            // Extract and return the "sub" claim as UUID
-            return UUID.fromString(claims.getSubject());
-        } catch (Exception e) {
-            e.printStackTrace();
+    private UUID getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            String sub = jwt.getSubject();
+            if (sub != null) {
+                try {
+                    return UUID.fromString(sub);
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Error parsing subject claim as UUID: " + sub);
+                }
+            }
         }
-        return null;
+        System.err.println("Could not get authenticated user ID from Security Context.");
+        return null; // Or throw exception
     }
 }
 

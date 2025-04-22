@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ParticipantService {
-    ResponseEntity<Object> removeParticipant(UUID id, HttpServletRequest request);
+    ResponseEntity<Object> removeParticipant(UUID id);
     ResponseEntity<Object> getParticipant(UUID id);
-    ResponseEntity<Object> addParticipant(Participant participant, HttpServletRequest request);
+    ResponseEntity<Object> addParticipant(Participant participant);
     List<Participant> getAllLobbyParticipants(Integer lobbyId);
 }
 

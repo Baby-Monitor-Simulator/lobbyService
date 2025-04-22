@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface LobbyService {
     ActiveLobby getLobby(Long lobbyId);
-    ActiveLobby openLobby(String authHeader, String scenarioId);
+    ActiveLobby openLobby(String scenarioId);
     boolean activateLobby(Long lobbyId);
     boolean deactivateLobby(Long lobbyId);
     void closeLobby(long id);

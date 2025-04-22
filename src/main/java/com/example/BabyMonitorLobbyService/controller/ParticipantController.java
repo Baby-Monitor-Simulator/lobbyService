@@ -35,12 +35,12 @@ public class ParticipantController {
 
     @PostMapping
     //@PreAuthorize("hasRole('deelnemer')")
-    public ResponseEntity<Object> addParticipant(@RequestBody Participant participant, HttpServletRequest request) {
+    public ResponseEntity<Object> addParticipant(@RequestBody Participant participant) {
         String dest = "/lobbies/" + participant.getLobbyId();
         String pay = "Hello: " + participant.getUserId() + ", welcome to: " + participant.getLobbyId();
 
         template.convertAndSend(dest, pay);
-        return participantService.addParticipant(participant, request);
+        return participantService.addParticipant(participant);
     }
 
     @PostMapping("/MQ")
@@ -51,7 +51,7 @@ public class ParticipantController {
     @DeleteMapping("/{id}")
     //@PreAuthorize("hasRole('deelnemer')")
     public ResponseEntity<Object> removeParticipant(@PathVariable UUID id, HttpServletRequest request) {
-        return participantService.removeParticipant(id, request);
+        return participantService.removeParticipant(id);
     }
 
     @GetMapping("/current/{id}")

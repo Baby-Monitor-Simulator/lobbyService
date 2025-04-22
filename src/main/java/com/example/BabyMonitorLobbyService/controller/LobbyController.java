@@ -32,11 +32,11 @@ public class LobbyController {
 
     @PostMapping("/NewLobby")
 //    @PreAuthorize("hasRole('instructeur')")
-    public ResponseEntity<?> newLobby(@RequestBody NewLobbyDTO lobbyDTO, @RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<?> newLobby(@RequestBody NewLobbyDTO lobbyDTO) {
         System.out.println("Trying to start new lobby...");
 
         // Check if lobby is allowed, if so, create it
-        ActiveLobby savedLobby = lobbyService.openLobby(authorization, lobbyDTO.getScenarioid());
+        ActiveLobby savedLobby = lobbyService.openLobby(lobbyDTO.getScenarioid());
 
         if (savedLobby.getId() != -1){
             NewLobbyResponseDTO responseDTO = new NewLobbyResponseDTO(savedLobby.getId());
